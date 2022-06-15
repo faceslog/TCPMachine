@@ -12,7 +12,7 @@ int main()
     sigemptyset(&sigset);
     sigaddset(&sigset, SIGINT);
     sigaddset(&sigset, SIGTERM);
-    sigaddset(&sigset, SIGTRAP);
+    sigaddset(&sigset, SIGTRAP); // For debugging with visual remotely
     pthread_sigmask(SIG_BLOCK, &sigset, nullptr);
 
     TCPMachine::Server srv(14005);
@@ -22,7 +22,7 @@ int main()
         int signum = 0;
         // wait until a signal is delivered:
         sigwait(&sigset, &signum);
-
+       
         srv.Stop();
       
         return signum;
