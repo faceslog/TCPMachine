@@ -21,6 +21,7 @@ namespace TCPMachine {
 
 		void Add(const int fd);
 		void Remove(const int fd);
+		void BasicRemove(const int fd);
 
 		void TerminateAll();
 

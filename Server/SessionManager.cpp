@@ -2,6 +2,8 @@
 
 #include "Session.hpp"
 
+#include <stdexcept>
+
 using namespace TCPMachine;
 
 SessionManager::SessionManager() : sessions()
@@ -32,8 +34,33 @@ void SessionManager::Remove(const int fd)
 {
 	guard.lock();
 
-	sessions.at(fd).reset(nullptr);
-	sessions.erase(fd);
+	try
+	{
+		sessions.at(fd)->BasicStop();
+		sessions.at(fd).reset(nullptr);
+		sessions.erase(fd);
+	}
+	catch (const std::out_of_range&)
+	{
+		// Session does not exist ...
+	}
+
+	guard.unlock();
+}
+
+void SessionManager::BasicRemove(const int fd)
+{
+	guard.lock();
+
+	try
+	{
+		sessions.at(fd).reset(nullptr);
+		sessions.erase(fd);
+	}
+	catch (const std::out_of_range&)
+	{
+		// Should never happen !
+	}
 
 	guard.unlock();
 }
@@ -41,6 +68,12 @@ void SessionManager::Remove(const int fd)
 void SessionManager::TerminateAll()
 {
 	guard.lock();
+
+	if (sessions.size() <= 0)
+	{
+		guard.unlock();
+		return;
+	}
 
 	for (auto& session : sessions)
 	{
