@@ -18,9 +18,10 @@ void SessionManager::Add(const int fd)
 {
 	guard.lock();
 
-	auto res = sessions.insert_or_assign(fd, std::make_unique<Session>(new Session(fd, this)));
-	auto insertedPair = res.first;
-
+	auto res = sessions.insert_or_assign(fd, std::unique_ptr<Session>(new Session(fd, this)));
+	
+	// Reference sur la pair que l'on vient d'insert
+	auto& insertedPair = res.first;
 	// Start the Session
 	insertedPair->second->Start();
 

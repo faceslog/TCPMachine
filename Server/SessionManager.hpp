@@ -11,6 +11,7 @@ namespace TCPMachine {
 
 	using uPtrSession = std::unique_ptr<Session>;
 
+	// Thread Safe Session Management
 	class SessionManager {
 
 	public:
