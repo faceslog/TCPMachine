@@ -4,6 +4,8 @@
 
 #include "Server.hpp"
 
+#define DEBUG
+
 int main()
 {
     std::cout << "[TCPMACHINE] : Creating Signal Handler" << std::endl;
@@ -12,7 +14,12 @@ int main()
     sigemptyset(&sigset);
     sigaddset(&sigset, SIGINT);
     sigaddset(&sigset, SIGTERM);
-    sigaddset(&sigset, SIGTRAP); // For debugging with visual remotely
+
+#ifdef DEBUG
+    std::cout << "[TCPMACHINE] : Adding SIGTRAP for Debugging" << std::endl;
+    sigaddset(&sigset, SIGTRAP);
+#endif // DEBUG
+        
     pthread_sigmask(SIG_BLOCK, &sigset, nullptr);
 
     TCPMachine::Server srv(14005);
