@@ -1,0 +1,69 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcxproj", "{09F24979-D7DE-419D-ADAC-E320A025563C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcxproj", "{EA15E28E-9092-43AE-AF26-757E1E22312E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Debug|ARM64 = Debug|ARM64
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|ARM = Release|ARM
+		Release|ARM64 = Release|ARM64
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|ARM.ActiveCfg = Debug|ARM
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|ARM.Build.0 = Debug|ARM
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|ARM.Deploy.0 = Debug|ARM
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|ARM64.Build.0 = Debug|ARM64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|x64.ActiveCfg = Debug|x64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|x64.Build.0 = Debug|x64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|x64.Deploy.0 = Debug|x64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|x86.ActiveCfg = Debug|x86
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|x86.Build.0 = Debug|x86
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Debug|x86.Deploy.0 = Debug|x86
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|ARM.ActiveCfg = Release|ARM
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|ARM.Build.0 = Release|ARM
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|ARM.Deploy.0 = Release|ARM
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|ARM64.ActiveCfg = Release|ARM64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|ARM64.Build.0 = Release|ARM64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|ARM64.Deploy.0 = Release|ARM64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|x64.ActiveCfg = Release|x64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|x64.Build.0 = Release|x64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|x64.Deploy.0 = Release|x64
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|x86.ActiveCfg = Release|x86
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|x86.Build.0 = Release|x86
+		{09F24979-D7DE-419D-ADAC-E320A025563C}.Release|x86.Deploy.0 = Release|x86
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Debug|ARM.ActiveCfg = Debug|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Debug|ARM.Build.0 = Debug|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Debug|ARM64.ActiveCfg = Debug|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Debug|ARM64.Build.0 = Debug|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Debug|x64.ActiveCfg = Debug|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Debug|x64.Build.0 = Debug|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Debug|x86.ActiveCfg = Debug|Win32
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Debug|x86.Build.0 = Debug|Win32
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Release|ARM.ActiveCfg = Release|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Release|ARM.Build.0 = Release|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Release|ARM64.ActiveCfg = Release|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Release|ARM64.Build.0 = Release|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Release|x64.ActiveCfg = Release|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Release|x64.Build.0 = Release|x64
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Release|x86.ActiveCfg = Release|Win32
+		{EA15E28E-9092-43AE-AF26-757E1E22312E}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9A8586A3-28F0-43C4-AEFF-D1A290758346}
+	EndGlobalSection
+EndGlobal
