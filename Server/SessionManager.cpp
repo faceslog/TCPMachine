@@ -69,12 +69,6 @@ void SessionManager::TerminateAll()
 {
 	guard.lock();
 
-	if (sessions.size() <= 0)
-	{
-		guard.unlock();
-		return;
-	}
-
 	for (auto& session : sessions)
 	{
 		session.second->BasicStop();
