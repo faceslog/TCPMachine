@@ -17,34 +17,21 @@ namespace TCPMachine {
 		explicit Session(const int fd, SessionManager* manager);
 		~Session();
 
+		// Start the handler thread
 		int Start();
-
-		// Signal the SessionManager that it will stop
+		// Stop the handler thread & signal the SessionManager that it stopped
 		int Stop();
-		// Does not signal the manager that it will stop
+		// Only stop the handler thread
 		int BasicStop();
 
-		// Return the amount of bytes sent if it's a success or return -1 for errors
-		int SendData(const char* buffer, uint32_t total_bytes);
-		int RecvData(char* buffer, uint32_t total_bytes);
-
-		int SendInt32(const int32_t integer);
-		int RecvInt32(int32_t* integer);
-
-		int SendString(const std::string& str);
-		int RecvString(std::string* str);
-
-		int SendBoolean(const bool value);
-		int RecvBoolean(bool* value);
-
-		const std::string& GetIpAddress();
+		const std::string& GetIpAddress() const;
 
 	private:
 
 		int fd;
 		SessionManager* manager;
 
-		std::atomic_bool isActive;
+		std::atomic_bool isRunning;
 		std::thread handler;
 
 		// IP:PORT of the client session
@@ -52,5 +39,30 @@ namespace TCPMachine {
 
 		void SetIpAddress();
 		void HandlerThread();
+
+		// Send a buffer using the current socket, throw std::runtime_error
+		void SendData(const char* buffer, uint32_t total_bytes);
+		// Receive a buffer using the current socket, throw std::runtime_error
+		void RecvData(char* buffer, uint32_t total_bytes);
+
+		// Send an int32_t, throw std::runtime_error
+		void SendInt32(const int32_t integer);
+		// Recv an int32_t, throw std::runtime_error
+		void RecvInt32(int32_t* integer);
+
+		// Send an uint32_t, throw std::runtime_error
+		void SendUint32(const uint32_t integer);
+		// Recv an uint32_t, throw std::runtime_error
+		void RecvUint32(uint32_t* integer);
+
+		// Send a std::string, throw std::runtime_error
+		void SendString(const std::string& str);
+		// Recv a std::string, throw std::runtime_error, std::bad_alloc
+		void RecvString(std::string* str);
+
+		// Send a bool, throw std::runtime_error
+		void SendBoolean(const bool value);
+		// Recv a bool, throw std::runtime_error
+		void RecvBoolean(bool* value);
 	};
 }
