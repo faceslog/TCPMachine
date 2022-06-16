@@ -38,11 +38,13 @@ int main()
     auto ft_signal_handler = std::async(std::launch::async, signal_handler);
 
     std::cout << "[TCPMACHINE] : Handler is Ready, Starting Server..." << std::endl;
+    
+    srv.Start();   
+
     std::cout << "[TCPMACHINE] : Waiting for SIGTERM or SIGINT ([CTRL]+[c])" << std::endl;
 
-    srv.Start();   
-    
     int signal = ft_signal_handler.get();
+
     std::cout << "[TCPMACHINE] : Received signal: " << signal << std::endl;
 
     std::cout << "[TCPMACHINE] : Exiting Gracefully !" << std::endl;
