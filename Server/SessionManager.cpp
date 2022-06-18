@@ -17,7 +17,6 @@ SessionManager::~SessionManager()
 
 void SessionManager::Add(const int fd)
 {
-	guard.lock();
 	std::unique_lock<std::mutex> lock(guard);
 
 	auto res = sessions.insert_or_assign(fd, std::unique_ptr<Session>(new Session(fd, this)));
