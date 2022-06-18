@@ -8,7 +8,6 @@ using namespace TCPMachine;
 
 SessionManager::SessionManager() : sessions()
 {
-	guard.unlock();
 }
 
 SessionManager::~SessionManager()
@@ -19,6 +18,7 @@ SessionManager::~SessionManager()
 void SessionManager::Add(const int fd)
 {
 	guard.lock();
+	std::unique_lock<std::mutex> lock(guard);
 
 	auto res = sessions.insert_or_assign(fd, std::unique_ptr<Session>(new Session(fd, this)));
 	
@@ -27,12 +27,12 @@ void SessionManager::Add(const int fd)
 	// Start the Session
 	insertedPair->second->Start();
 
-	guard.unlock();
+	// std::mutex::unlock called with std::unique_lock dtor
 }
 
 void SessionManager::Remove(const int fd)
 {
-	guard.lock();
+	std::unique_lock<std::mutex> lock(guard);
 
 	try
 	{
@@ -45,12 +45,12 @@ void SessionManager::Remove(const int fd)
 		// Session does not exist ...
 	}
 
-	guard.unlock();
+	// std::mutex::unlock called with std::unique_lock dtor
 }
 
 void SessionManager::BasicRemove(const int fd)
 {
-	guard.lock();
+	std::unique_lock<std::mutex> lock(guard);
 
 	try
 	{
@@ -62,12 +62,12 @@ void SessionManager::BasicRemove(const int fd)
 		// Should never happen !
 	}
 
-	guard.unlock();
+	// std::mutex::unlock called with std::unique_lock dtor
 }
 
 void SessionManager::TerminateAll()
 {
-	guard.lock();
+	std::unique_lock<std::mutex> lock(guard);
 
 	for (auto& session : sessions)
 	{
@@ -77,5 +77,5 @@ void SessionManager::TerminateAll()
 	// This will call the destructor for each smartpointer freeing the memory allocated for the sessions
 	sessions.clear();
 
-	guard.unlock();
+	// std::mutex::unlock called with std::unique_lock dtor
 }
