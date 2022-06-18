@@ -20,7 +20,7 @@ namespace TCPMachine {
 
 	private:
 
-		// File Descriptor (int) - std::unique_ptr<Session>
+		// Thread Pool for all sessions
 		SessionManager sessions;
 
 		// The advantage of a mutex is that it waits until the lock is open for you

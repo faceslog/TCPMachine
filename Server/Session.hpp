@@ -6,39 +6,12 @@
 
 namespace TCPMachine {
 
-	// Forward Declaration for Bidirectional Association 
-	// when closing the session we need to remove it from the manager
-	class SessionManager;
-
 	class Session {
 
 	public:
 
-		explicit Session(const int fd, SessionManager* manager);
+		explicit Session(const int fd);
 		~Session();
-
-		// Start the handler thread
-		int Start();
-		// Stop the handler thread & signal the SessionManager that it stopped
-		int Stop();
-		// Only stop the handler thread
-		int BasicStop();
-
-		const std::string& GetIpAddress() const;
-
-	private:
-
-		int fd;
-		SessionManager* manager;
-
-		std::atomic_bool isRunning;
-		std::thread handler;
-
-		// IP:PORT of the client session
-		std::string fullIp;
-
-		void SetIpAddress();
-		void HandlerThread();
 
 		// Send a buffer using the current socket, throw std::runtime_error
 		void SendData(const char* buffer, uint32_t total_bytes);
@@ -63,6 +36,17 @@ namespace TCPMachine {
 		// Send a bool, throw std::runtime_error
 		void SendBoolean(const bool value);
 		// Recv a bool, throw std::runtime_error
-		void RecvBoolean(bool* value);
+		void RecvBoolean(bool* value);	
+
+		const std::string& GetIpAddress() const;
+
+	private:
+
+		const int fd; 
+
+		// IP:PORT of the client session
+		std::string fullIp;
+
+		void SetIpAddress();
 	};
 }

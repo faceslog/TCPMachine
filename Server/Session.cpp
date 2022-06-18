@@ -1,7 +1,5 @@
 #include "Session.hpp"
 
-#include "SessionManager.hpp"
-
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -13,71 +11,15 @@ using namespace TCPMachine;
 
 // ======================= PUBLIC: =======================
 
-Session::Session(const int fd, SessionManager* manager)
+Session::Session(const int fd) : fd(fd)
 {
-	if (!manager)
-		throw std::logic_error("Session manager cannot be a nullptr !");
-
-	this->fd = fd;
-	this->manager = manager;
-	this->isRunning.store(false);
-
 	SetIpAddress();
 }
 
 Session::~Session()
 {
-	// When hitting the CTOR if the session is still running it means the manager did not stop it
-	// So we need to stop the thread and notify the SessionManager !
-	if (isRunning.load())
-	{
-		Stop();
-	}
-
 	// To avoid to close twice the socket we will do it in the DTOR
 	close(fd);
-}
-
-int Session::Start()
-{
-	if (isRunning.load())
-		return -1;
-
-	if (not isRunning.is_lock_free())
-		return -1;
-
-	isRunning.store(true);
-	handler = std::thread(&Session::HandlerThread, this);
-	
-	return 0;
-}
-
-// Signal the SessionManager that it will stop
-int Session::Stop()
-{
-	// Stop the thread
-	int res = BasicStop();
-	
-	manager->BasicRemove(fd);
-
-	return res + 0;
-}
-
-// Does not signal the manager that it will stop
-int Session::BasicStop()
-{
-	if (not isRunning.load())
-		return -1;
-
-	isRunning.store(false);
-
-	// We want to be sure the thread terminated.
-	if (handler.joinable())
-		handler.join();
-	else
-		return -1;
-	
-	return 0;
 }
 
 const std::string& Session::GetIpAddress() const
@@ -116,32 +58,12 @@ void Session::SetIpAddress()
 	fullIp = std::string(_ip) + ':' + std::to_string(port);
 }
 
-void Session::HandlerThread()
-{
-	std::cout << "[SESSION] [THREAD: 0x" << std::this_thread::get_id() << "] : Handler Thread Started" << std::endl;
-
-	try
-	{
-		// TO DO !
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << "[SESSION] [FD: " << fd << "] : " << e.what() << std::endl;
-	}
-
-	std::cout << "[SESSION] [FD: " << fd << "] : Terminated with success !" << std::endl;
-	std::cout << "[SESSION] [THREAD: 0x" << std::this_thread::get_id() << "] : Handler Thread Stopped" << std::endl;
-}
-
 void Session::SendData(const char* buffer, uint32_t total_bytes)
 {
 	uint32_t bytes_sent = 0;
 
 	while (bytes_sent < total_bytes)
-	{
-		if (not isRunning.load())
-			throw std::runtime_error("Send Data Interrupted due to session stop request");
-						
+	{						
 		int32_t iResult = static_cast<int32_t>(send(fd, buffer + bytes_sent, total_bytes - bytes_sent, 0));
 	
 		if (iResult < 0)
@@ -161,9 +83,6 @@ void Session::RecvData(char* buffer, uint32_t total_bytes)
 
 	while (bytes_received < total_bytes)
 	{
-		if (not isRunning.load())
-			throw std::runtime_error("Recv Data Interrupted due to session stop request");
-
 		int32_t iResult = static_cast<int32_t>(recv(fd, buffer + bytes_received, total_bytes - bytes_received, 0));
 				
 		if (iResult < 0)
