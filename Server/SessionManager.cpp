@@ -114,11 +114,18 @@ void SessionManager::WorkerThread()
 			std::this_thread::sleep_for(std::chrono::seconds(5));
 			continue;
 		}
-				
+		
 		Session bot = Session(fd);
 		std::cout << "[MANAGER] [THREAD: 0x" << std::this_thread::get_id() << "] : Connected to: " << bot.GetIpAddress() << std::endl;
 
-		bot.SendString("Hello from Server !");		
+		try
+		{
+			bot.SendString("Hello from Server !");
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << "[MANAGER] [THREAD: 0x" << std::this_thread::get_id() << "] : " << e.what() << std::endl;
+		}
 
 		// When the session goes out of scope the dtor will close the socket
 	}
