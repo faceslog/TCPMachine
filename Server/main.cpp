@@ -4,6 +4,9 @@
 
 #include "Server.hpp"
 
+#define PORT 14005
+#define WORKERS 2
+
 #define DEBUG
 
 int main()
@@ -22,7 +25,7 @@ int main()
         
     pthread_sigmask(SIG_BLOCK, &sigset, nullptr);
 
-    TCPMachine::Server srv(14005);
+    TCPMachine::Server srv(PORT, WORKERS);
 
     auto signal_handler = [&srv, &sigset]() 
     {
@@ -39,6 +42,9 @@ int main()
 
     std::cout << "[TCPMACHINE] : Handler is Ready, Starting Server..." << std::endl;
     std::cout << "[TCPMACHINE] : Waiting for SIGTERM or SIGINT ([CTRL]+[c])" << std::endl;
+
+    // 1 Thread -> Signal Handler | 1 Thread -> Listener | X Threads -> Worker = 2 + WORKERS
+    std::cout << "[TCPMACHINE] : Using " << (WORKERS + 2) << " Threads" << std::endl;
     
     srv.Start();   
 

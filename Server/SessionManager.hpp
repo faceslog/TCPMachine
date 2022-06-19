@@ -2,7 +2,7 @@
 
 #include <mutex>
 #include <atomic>
-#include <unordered_map>
+#include <vector>
 #include <queue>
 #include <thread>
 
@@ -13,30 +13,38 @@ namespace TCPMachine {
 
 	public:
 
-		explicit SessionManager();
+		explicit SessionManager(uint8_t nbOfThreads);
 		~SessionManager();
 
-		// Create a new thread to handle a session
-		void Add(const int fd);
-		// Join & Clean terminated threads
-		void CleanUp();
-		// Stop & Join all threads.
-		void TerminateAll();
+		// Start the thread workers
+		int StartWorkers();
+		// Stop & Join all threads socket on the queue are closed.
+		int StopWorkers();
+
+		// Add the socket to the queue to be processed
+		void Push(const int fd);
 
 	private:
 
-		std::mutex guard;
+		uint8_t nbOfThreads;
+
+		// Mutex to prevent writing to session queue at the same time
+		std::mutex guardQueue;
+		// Mutex to prevent starting while waiting stop to terminate.
+		std::mutex guardStartStop;
 
 		// key: FD, val: thread  
-		std::unordered_map<int, std::thread> threadPool;
+		std::vector<std::thread> threadPool;
 		// Store key of the terminated threads
-		std::queue<int> deletionQueue;
+		std::queue<int> queue;
+
 		// atomic bool to stop all threads
 		std::atomic_bool areRunning;
-		// Add a thread to the queue for deletion
-		void QueueForDeletion(const int fd);
 
 		// Handler thread will create an run a session
-		void HandlerThread(const int fd);		
+		void WorkerThread();		
+
+		// Take a socket from the queue to process
+		int Get();
 	};
 }
