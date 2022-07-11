@@ -97,6 +97,7 @@ void Server::ListenerThread()
 			}
 		}
 
+		//  TO DO: Use poll() or select() to push only active sockets...
 		sessions.Push(client_fd);
 	}
 	// ================== Stop Threads Workers ==================
