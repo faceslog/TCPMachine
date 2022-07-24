@@ -1,6 +1,9 @@
 #pragma once
 
+#define WIN32_LEAN_AND_MEAN
+
 #include <windows.h>
+#include <winsock2.h>
 #include <cstdint>
 #include <string>
 
@@ -44,7 +47,7 @@ namespace TCPMachine {
 		const std::string host;
 		const std::string port;
 
-		SOCKET socket;
+		SOCKET connSocket;
 		
 		// Called by the CTOR, return 0 if it succeed or -1 if it failed
 		int InitSocket();
