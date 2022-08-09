@@ -120,6 +120,11 @@ void SessionManager::WorkerThread()
 
 		try
 		{
+			std::string message;
+			bot.RecvString(&message);
+
+			std::cout << "Message from client: " << message << std::endl;
+
 			bot.SendString("Hello from Server !");
 		}
 		catch (const std::exception& e)
@@ -128,6 +133,7 @@ void SessionManager::WorkerThread()
 		}
 
 		// When the session goes out of scope the dtor will close the socket
+		std::cout << "[MANAGER] [THREAD: 0x" << std::this_thread::get_id() << "] : Disconnecting: " << bot.GetIpAddress() << std::endl;
 	}
 
 	std::cout << "[MANAGER] [THREAD: 0x" << std::this_thread::get_id() << "] : Worker Thread Stopped" << std::endl;

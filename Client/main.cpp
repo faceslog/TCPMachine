@@ -3,9 +3,27 @@
 
 #include <iostream>
 
+#include "ClientSocket.hpp"
+
 int main()
 {
-    std::cout << "Hello World!\n";
+    try
+    {
+        TCPMachine::ClientSocket client("127.0.0.1", "14005");
+
+        client.SendString("Hello Server !");
+
+        std::string message;
+        client.RecvString(&message);
+        std::cout << "Message from server: " << message << std::endl;
+        
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "[CLIENT]: " << e.what() << std::endl;
+    }
+
+    getchar();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

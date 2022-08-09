@@ -18,6 +18,7 @@ Session::Session(const int fd) : fd(fd)
 
 Session::~Session()
 {
+	std::cout << "[SESSION] Session Destroyed" << std::endl;
 	// To avoid to close twice the socket we will do it in the DTOR
 	close(fd);
 }
