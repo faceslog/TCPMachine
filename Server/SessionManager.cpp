@@ -2,38 +2,139 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <unistd.h>
+
+#include "Session.hpp"
 
 using namespace TCPMachine;
 
-SessionManager::SessionManager()
+SessionManager::SessionManager(uint8_t nbOfThreads) : threadPool(), queue()
 {
+	this->nbOfThreads = nbOfThreads;
+	this->areRunning.store(false);
 }
 
 SessionManager::~SessionManager()
 {
+	if (areRunning.load())
+	{
+		StopWorkers();
+	}
 }
 
-void SessionManager::Add(const int socket)
+void SessionManager::Push(const int socket)
 {
+	std::unique_lock<std::mutex> lock(guardQueue);
+
+	queue.push(socket);
 }
 
-void SessionManager::CleanUp()
+int SessionManager::Get()
 {
+	std::unique_lock<std::mutex> lock(guardQueue);
+
+	if (queue.empty())
+		return -1;
+
+	int fd = queue.front();
+	queue.pop();
+
+	return fd;
 }
 
-void SessionManager::TerminateAll()
+int SessionManager::StartWorkers()
 {
+	std::unique_lock<std::mutex> lock(guardStartStop);
+
+	if (areRunning.load())
+	{
+		std::cerr << "[MANAGER] : Worker Threads Already Running !" << std::endl;
+		return -1;
+	}
+		
+	if (not areRunning.is_lock_free())
+		return -1;
+
+	areRunning.store(true);
+
+	for (int i{ 0 }; i < nbOfThreads; i++)
+	{
+		threadPool.push_back(std::thread(&SessionManager::WorkerThread, this));
+	}
+	
+	return 0;
 }
 
-void SessionManager::QueueForDeletion(const int id) 
+int SessionManager::StopWorkers()
 {
+	std::unique_lock<std::mutex> lockA(guardStartStop);
+
+	if (not areRunning.load())
+	{
+		std::cerr << "[MANAGER] : Worker Threads are Not Running !" << std::endl;
+		return -1;
+	}
+
+	// ======================================================
+	std::cerr << "[MANAGER] : Stopping Worker Threads ..." << std::endl;
+	areRunning.store(false);
+	for (auto& th : threadPool)
+	{
+		if (th.joinable())
+			th.join();
+	}
+	std::cerr << "[MANAGER] : Threads Stopped !" << std::endl;
+
+	// ======================================================
+	std::cerr << "[MANAGER] : Closing Sockets in Queue ..." << std::endl;
+	std::unique_lock<std::mutex> lockB(guardQueue);
+	while (not queue.empty())
+	{
+		int fd = queue.front();
+		queue.pop();
+		close(fd);
+	}
+	std::cerr << "[MANAGER] : All Sockets are Closed ..." << std::endl;
+
+	return 0;
 }
 
-void SessionManager::HandlerThread(const int fd)
+void SessionManager::WorkerThread()
 {
-	std::cout << "[MANAGER] [THREAD: 0x" << std::this_thread::get_id() << "] : Handler Thread Started" << std::endl;
+	std::cout << "[MANAGER] [THREAD: 0x" << std::this_thread::get_id() << "] : Worker Thread Started" << std::endl;
 
-	// Create a session and handle an automated routine with it
+	// Take a socket from the queue and process it
+	while (areRunning.load())
+	{
+		int fd = Get();
 
-	std::cout << "[MANAGER] [THREAD: 0x" << std::this_thread::get_id() << "] : Handler Thread Stopped" << std::endl;
+		if (fd < 0)
+		{
+			// No socket to use sleeping ...
+			std::this_thread::sleep_for(std::chrono::seconds(5));
+			continue;
+		}
+		
+		Session bot = Session(fd);
+		std::cout << "[MANAGER] [THREAD: 0x" << std::this_thread::get_id() << "] : Connected to: " << bot.GetIpAddress() << std::endl;
+
+		try
+		{
+			std::string message;
+			bot.RecvString(&message);
+
+			std::cout << "Message from client: " << message << std::endl;
+
+			bot.SendString("Hello from Server !");
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << "[MANAGER] [THREAD: 0x" << std::this_thread::get_id() << "] : " << e.what() << std::endl;
+		}
+
+		// When the session goes out of scope the dtor will close the socket
+		std::cout << "[MANAGER] [THREAD: 0x" << std::this_thread::get_id() << "] : Disconnecting: " << bot.GetIpAddress() << std::endl;
+	}
+
+	std::cout << "[MANAGER] [THREAD: 0x" << std::this_thread::get_id() << "] : Worker Thread Stopped" << std::endl;
 }
