@@ -42,9 +42,6 @@ int main()
 
     std::cout << "[TCPMACHINE] : Handler is Ready, Starting Server..." << std::endl;
     std::cout << "[TCPMACHINE] : Waiting for SIGTERM or SIGINT ([CTRL]+[c])" << std::endl;
-
-    // 1 Thread -> Signal Handler | 1 Thread -> Listener | X Threads -> Worker = 2 + WORKERS
-    std::cout << "[TCPMACHINE] : Using " << (WORKERS + 2) << " Threads" << std::endl;
     
     srv.Start();   
 

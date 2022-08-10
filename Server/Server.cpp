@@ -59,29 +59,22 @@ int Server::Stop()
 
 void Server::ListenerThread()
 {
-	struct sockaddr_in6 addr;
-	int addr_len = sizeof(addr);
-	int listen_fd = -1;
+	int listen_sd = CreateListenSock();
 
-	if (CreateReuseableFd(&listen_fd) < 0) 
+	if (listen_sd < 0) 
 		return;
-	if (SetSocketFlags(&listen_fd) < 0) 
-		return;
-	if (BindSocket(&listen_fd, &addr) < 0) 
-		return;
-	if (ListenSocket(&listen_fd) < 0) 
-		return;
-		
+
 	// ================== Init Threads Workers ==================
 	if (sessions.StartWorkers() < 0)
 	{
-		close(listen_fd);
+		close(listen_sd);
 		return;
 	}
+
 	// ================== Wait for connections ==================
 	while (isRunning.load())
 	{
-		int client_fd = accept(listen_fd, (struct sockaddr*)&addr, (socklen_t*)&addr_len);
+		int client_fd = accept(listen_sd, nullptr, nullptr);
 
 		if (client_fd < 0)
 		{
@@ -104,87 +97,76 @@ void Server::ListenerThread()
 	sessions.StopWorkers();
 
 	// ================== Close the listener fd =================
-	close(listen_fd);
+	close(listen_sd);
 	std::cout << "[SERVER] : Listener Thread Gracefully Stopped" << std::endl;
 }
 
-int Server::CreateReuseableFd(int* fd)
+int Server::CreateListenSock()
 {
+	int serverfd = -1;
 	int opt = 1;
+	int flags = -1;
+
+	struct sockaddr_in6 addr;
+	int addr_len = sizeof(addr);
+
+	addr.sin6_family = AF_INET6;
+	addr.sin6_port = htons(port);
+	addr.sin6_addr = in6addr_any;
 
 	// ================== Create Socket ==================
-	if ((*fd = socket(AF_INET6, SOCK_STREAM, 0)) < 0)
+	if ((serverfd = socket(AF_INET6, SOCK_STREAM, 0)) < 0)
 	{
 		std::cerr << "[SERVER] : Socket Creation Failed" << std::endl;
 		return -1;
 	}
 	std::cout << "[SERVER] : Socket Created Successfully" << std::endl;
-
+	
 	// ===== Allow socket descriptor to be reuseable  =====
-	if (setsockopt(*fd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) < 0)
+	if (setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) < 0)
 	{
 		std::cerr << "[SERVER] : Setsockopt() failed" << std::endl;
-		close(*fd);
+		close(serverfd);
 		return -1;
 	}
 	std::cout << "[SERVER] : Socket Marked as Reuseable" << std::endl;
 
-	return 0;
-}
-
-int Server::SetSocketFlags(int* fd)
-{
-	int flags = -1;
-
 	// ================== Get Socket Flags ==================
-	if ((flags = fcntl(*fd, F_GETFL, 0)) < 0)
+	if ((flags = fcntl(serverfd, F_GETFL, 0)) < 0)
 	{
 		std::cerr << "[SERVER] : Could not get Flags on TCP Listening Socket" << std::endl;
-		close(*fd);
+		close(serverfd);
 		return -1;
 	}
 	std::cout << "[SERVER] : Socket Flags Received" << std::endl;
 
 	// ================== Set Socket Non Blocking ==================
-	if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) < 0)
+	if (fcntl(serverfd, F_SETFL, flags | O_NONBLOCK) < 0)
 	{
 		std::cerr << "[SERVER] : Could not set TCP Listening Socket to be Non-Blocking" << std::endl;
-		close(*fd);
+		close(serverfd);
 		return -1;
 	}
 	std::cout << "[SERVER] : Socket Flags Sets" << std::endl;
 
-	return 0;
-}
-
-int Server::BindSocket(int* fd, sockaddr_in6* addr)
-{
-	addr->sin6_family = AF_INET6;
-	addr->sin6_port = htons(port);
-	addr->sin6_addr = in6addr_any;
-
 	// ================== Bind Socket ==================
-	if (bind(*fd, (struct sockaddr*) addr, sizeof(*addr)) < 0)
+	if (bind(serverfd, (struct sockaddr*)&addr, sizeof(addr)) < 0)
 	{
 		std::cerr << "[SERVER] : Bind failed" << std::endl;
-		close(*fd);
+		close(serverfd);
 		return -1;
 	}
 	std::cout << "[SERVER] : Bind Successful." << std::endl;
 
-	return 0;
-}
-
-int Server::ListenSocket(int* fd)
-{
 	// ================== Set Listen Set ==================
-	if (listen(*fd, SOMAXCONN) < 0)
+	if (listen(serverfd, SOMAXCONN) < 0)
 	{
 		std::cerr << "[SERVER] : Listen Failed" << std::endl;
-		close(*fd);
+		close(serverfd);
 		return -1;
 	}
 	std::cout << "[SERVER] : Socket in Listen State " << std::endl;
 
-	return 0;
+	return serverfd;
 }
+

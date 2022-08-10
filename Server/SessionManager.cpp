@@ -111,7 +111,7 @@ void SessionManager::WorkerThread()
 		if (fd < 0)
 		{
 			// No socket to use sleeping ...
-			std::this_thread::sleep_for(std::chrono::seconds(5));
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 			continue;
 		}
 		

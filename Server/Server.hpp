@@ -7,9 +7,6 @@
 
 #include "SessionManager.hpp"
 
-// Forward Declaration
-struct sockaddr_in6;
-
 namespace TCPMachine {
 
 	class Server {
@@ -41,14 +38,8 @@ namespace TCPMachine {
 
 		// Create a socket and listen for clients
 		void ListenerThread();
-		
-		// 1) Return 0 for success -1 for errors and close the socket
-		int CreateReuseableFd(int* fd);
-		// 2) Return 0 for success -1 for errors and close the socket
-		int SetSocketFlags(int* fd);
-		// 3) Return 0 for success -1 for errors and close the socket
-		int BindSocket(int* fd, sockaddr_in6* addr);
-		// 4) Return 0 for success -1 for errors and close the socket
-		int ListenSocket(int* fd);
+
+		// Return the listen socket or -1 for errors
+		int CreateListenSock();
 	};
 }
