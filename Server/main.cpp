@@ -46,7 +46,7 @@ int main()
 
     int signal = ft_signal_handler.get();
 
-    std::cout << "[TCPMACHINE] : Received signal: " << signal << std::endl;
+    std::cout << "[TCPMACHINE] : Received signal value: " << signal << std::endl;
     std::cout << "[TCPMACHINE] : Exiting Gracefully !" << std::endl;
 
     return EXIT_SUCCESS;
