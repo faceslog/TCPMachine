@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <strings.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
@@ -115,6 +116,7 @@ int Server::CreateListenSock()
 	int flags = -1;
 
 	struct sockaddr_in6 addr;
+	bzero(&addr, sizeof(addr));
 
 	addr.sin6_family = AF_INET6;
 	addr.sin6_port = htons(port);
