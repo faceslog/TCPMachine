@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <strings.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
@@ -28,8 +29,11 @@ int Server::Start()
 	std::unique_lock<std::mutex> lock(guardStartStop);
 
 	if (isRunning.load())
+	{
+		std::cerr << "[ERROR] [SERVER] : Server already started...\n" << std::endl;
 		return -1;
-	
+	}
+		
 	if (not isRunning.is_lock_free())
 		return -1;
 
@@ -45,8 +49,11 @@ int Server::Stop()
 	std::unique_lock<std::mutex> lock(guardStartStop);
 
 	if (not isRunning.load())
+	{
+		std::cerr << "[ERROR] [SERVER] : Server not started...\n" << std::endl;
 		return -1;
-
+	}
+		
 	isRunning.store(false);
 
 	if (handle.joinable())
@@ -67,6 +74,7 @@ void Server::ListenerThread()
 	// ================== Init Threads Workers ==================
 	if (sessions.StartWorkers() < 0)
 	{
+		std::cerr << "[ERROR] [SERVER] : Failed to start server (workers dead)...\n" << std::endl;
 		close(listen_sd);
 		return;
 	}
@@ -108,7 +116,7 @@ int Server::CreateListenSock()
 	int flags = -1;
 
 	struct sockaddr_in6 addr;
-	int addr_len = sizeof(addr);
+	bzero(&addr, sizeof(addr));
 
 	addr.sin6_family = AF_INET6;
 	addr.sin6_port = htons(port);
